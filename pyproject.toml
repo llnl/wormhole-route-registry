@@ -1,0 +1,183 @@
+[build-system]
+requires = ["setuptools >= 61.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "route-registry"
+description = "Registry mapping routes to target urls with authorization"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Thomas Mendoza", email = "thomas@matalino.software"},
+]
+maintainers = [
+    {name = "Thomas Mendoza", email = "thomas@matalino.software"},
+    {name = "Conner Cook", email = "cook107@llnl.gov"},
+    {name = "Urwah Mir", email = "mir2@llnl.gov"},
+    {name = "John Consolati", email = "consolati1@llnl.gov"},
+]
+keywords = ["route_registry", "authorization"]
+requires-python = ">= 3.11"
+dependencies = [
+    "attrs>=26.1.0",
+    "alembic>=1.18.4",
+    "dynaconf>=3.2.13",
+    "fastapi[standard]>=0.136.1",
+    "requests>=2.34.2",
+    "sqlalchemy>=2.0.49",
+    "tenacity>=9.1.4",
+    "multimethod>=2.0.2",
+    "pendulum>=3.2.0",
+    "authlib>=1.7.2",
+    "joserfc>=1.7.1",
+    "bcrypt>=5.0.0",
+    "tomli-w>=1.2.0",
+    "psycopg2>=2.9.12",
+    "itsdangerous>=2.2.0",
+    "APScheduler>=3.11.2",
+    "celery[librabbitmq]>=5.6.3",
+    "cryptography>=48.0.0",
+    "jsonschema>=4.26.0",
+    "fastapi-offline==1.7.6",
+]
+dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+    "bump-my-version",
+    "Flask",
+    "pytest",
+    "pytest-asyncio",
+    "tox",
+    "jsonschema",
+    "bcrypt",
+]
+
+[project.scripts]
+route_registry = 'route_registry.command:cli'
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+
+# strict
+warn_unused_configs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_reexport = true
+strict_equality = true
+
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+[tool.setuptools.dynamic]
+version = {attr = "route_registry.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["route_registry*"]
+
+[tool.setuptools.package-data]
+token_service = ["config/settings.toml"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+markers = [
+    "e2e: marks test needing live resource",
+]
+testpaths = [
+    "tests",
+]
+tmp_path_retention_policy = "failed"
+
+[tool.bumpversion]
+allow_dirty = false
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+commit_args = "--no-verify"
+tag = true
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+current_version = "0.1.0"
+search = "{current_version}"
+replace = "{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "route_registry/__init__.py"
+
+[[tool.bumpversion.files]]
+filename = "helm/route_registry/values.yaml"
+search = "tag: \"{current_version}\""
+replace = "tag: \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "helm/route_registry/Chart.yaml"
+search = "appVersion: \"{current_version}\""
+replace = "appVersion: \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "helm/route_registry/charts/route-registry-core/Chart.yaml"
+search = "appVersion: \"{current_version}\""
+replace = "appVersion: \"{new_version}\""
+
+[tool.tox]
+requires = ["tox>=4.19"]
+
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+deps = [
+    "pytest",
+    "tenacity",
+    "jsonschema",
+    "bcrypt",
+    "Flask",
+    "pytest-asyncio",
+]
+commands = [["pytest", "{posargs}"]]
+
+[tool.tox.env.lint]
+deps = ["ruff==0.9.7"]
+commands = [
+    ["ruff", "check", "route_registry"],
+    ["ruff", "check", "tests"],
+    ["ruff", "format", "--check", "route_registry"],
+    ["ruff", "format", "--check", "tests"],
+]
+
+
+[tool.alembic]
+
+# path to migration scripts.
+# this is typically a path given in POSIX (e.g. forward slashes)
+# format, relative to the token %(here)s which refers to the location of this
+# ini file
+script_location = "%(here)s/alembic"
+
+# template used to generate migration file names; The default value is %%(rev)s_%%(slug)s
+# Uncomment the line below if you want the files to be prepended with date and time
+# see https://alembic.sqlalchemy.org/en/latest/tutorial.html#editing-the-ini-file
+# for all available tokens
+# file_template = "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s"
+
+# additional paths to be prepended to sys.path. defaults to the current working directory.
+prepend_sys_path = [
+    "."
+]
+
+[[tool.alembic.post_write_hooks]]
+# Alternatively, use the exec runner to execute a binary found on your PATH
+name = "ruff"
+type = "exec"
+executable = "ruff"
+options = "check --fix REVISION_SCRIPT_FILENAME"
+
+[tool.uv]
+exclude-newer = "1 week"
+exclude-newer-package = { route-registry = false }

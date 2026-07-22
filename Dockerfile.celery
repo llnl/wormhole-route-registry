@@ -1,0 +1,17 @@
+FROM python:3.11
+
+WORKDIR /app
+
+ARG project_version
+
+COPY route_registry/config/settings.toml settings.local.toml
+RUN chmod 644 settings.local.toml
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install route-registry==$project_version
+
+ENTRYPOINT ["route_registry", "listen-tasks"]

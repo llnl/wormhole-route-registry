@@ -1,0 +1,55 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ include "route-registry.db-fullname" . }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "route-registry.db-fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "postgres.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "postgres.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          env:
+            - name: PGDATA
+              value: {{ .Values.volumes.pgdata }}
+          ports:
+            - name: {{ .Values.service.name }}
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: {{ .Values.volumes.name }}
+              mountPath: {{ .Values.volumes.mountPath }}
+              {{- if .Values.volumes.subPath }}
+              subPath: {{ .Values.volumes.subPath }}
+              {{- end }}
+            {{- if .Values.cert.enabled }}
+            - name: {{ .Values.cert.name }}
+              mountPath: {{ .Values.cert.mountPath }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      {{- if .Values.cert.enabled }}
+      volumes:
+        - name: {{ .Values.cert.name }}
+          secret:
+            defaultMode: 0440
+            secretName: {{ .Values.cert.name }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.volumes.name }}
+      spec:
+        accessModes:
+          - {{ .Values.volumes.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.volumes.volumeCapacity }}

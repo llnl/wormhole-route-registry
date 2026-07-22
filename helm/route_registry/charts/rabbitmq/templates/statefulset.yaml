@@ -1,0 +1,38 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ include "rabbitmq.fullname" . }}
+  labels:
+    {{- include "rabbitmq.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "rabbitmq.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "rabbitmq.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rabbitmq.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          ports:
+            - name: {{ .Values.service.name }}
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: {{ .Values.volumes.name }}
+              mountPath: {{ .Values.volumes.mountPath }}
+          envFrom:
+            - secretRef:
+                name: rabbitmq-secret
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.volumes.name }}
+      spec:
+        accessModes:
+          - {{ .Values.volumes.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.volumes.volumeCapacity }}

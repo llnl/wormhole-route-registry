@@ -1,0 +1,151 @@
+dynaconf_merge = true
+
+[default]
+log_level = "DEBUG"
+api_version = "v1"
+
+[default.auth]
+auth_name = "base_auth"
+
+[default.auth.base_auth]
+
+[default.auth.authlib_oidc]
+url = "http://localhost:8443"
+
+[default.auth.authlib_oidc.session_config]
+session_cookie = "route-registry-session"
+same_site = "strict"
+https_only = true
+max_age = 43200
+
+[default.auth.admin]
+secret = "secret"
+
+[default.auth.jwt]
+alg = "RS256"
+#lifespan in seconds
+lifespan = 300
+# must match a defined key
+active_kid = "1"
+#lifespan in seconds
+leeway = 43_200
+
+# table key is the kid
+[default.auth.jwt.keys.1]
+key_type = "RSA"
+public_pem = ""
+private_pem = ""
+
+[default.auth.token_service]
+host = "http://localhost:5002"
+api_version = "v1"
+
+[default.rabbitmq]
+username = ""
+password = ""
+
+[default.schema]
+data = '''
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Access Control Schema",
+  "description": "Web applications will serve an authorization.json file defining access control for users/groups and a validation token",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Version of the access control config",
+      "minLength": 1
+    },
+    "disallowed": {
+      "type": "object",
+      "description": "If disallowed is specified, if user in disallowed.users or whose group matches disallowed.group, the policy is to DENY",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "allowed": {
+      "type": "object",
+      "description": "If allowed is specified, only users in allowed.users or whose group matches allowed.groups are allowed. Others are DENIED.",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": ["version"]
+}
+
+'''
+
+[default.celery]
+broker_url = "amqp://localhost:5672//"
+result_backend = "db+sqlite:///results.db"
+
+[default.server]
+host = "localhost"
+port = 5001
+
+[default.track]
+
+[default.track.routes]
+# check interval measured in seconds
+check_interval = 60
+# stale route duration is measured in days
+stale_duration = 90
+
+[default.db]
+url = "sqlite:///test.db"
+username = ""
+password = ""
+
+[default.tasks]
+
+[default.tasks.validate_route]
+
+# The celery key is for celery specific settings
+[default.tasks.validate_route.celery]
+max_retries = 5
+# Boolean or seconds for exponential retry
+# See the class section of https://docs.celeryq.dev/en/stable/userguide/tasks.html#automatic-retry-for-known-exceptions
+retry_backoff = 30
+
+[default.url]
+bind_subdomain = false
+authorization_path = "/-/airlock/authz.json"
+
+[default.url.holepunch]
+base_url = "http://localhost:5003/api"
+version = "v1"
+
+[default.url.token_service]
+base_url = "http://localhost:5002"
+
+[default.url.entry]
+base_url = "http://localhost:5001"
+
+[default.url.tunnel]
+base_url = "http://localhost:5001"
+connect_url = "http://localhost:5001"
+target_header = "X-Piko-Endpoint"

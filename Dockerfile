@@ -2,7 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-ARG project_version
+ARG project_version="0.1.0"
 
 COPY pyproject.toml pyproject.toml
 COPY alembic alembic
@@ -17,10 +17,10 @@ RUN apt-get update && apt-get install -y \
     dnsutils \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install route-registry==$project_version \
+RUN pip3 install wormhole-route-registry==$project_version \
     && pip3 install opentelemetry-distro opentelemetry-exporter-otlp \
 # The opentelemetry-bootstrap -a install command reads through
 # active site-packages folder, and installs the corresponding instrumentation
     && opentelemetry-bootstrap -a install
 
-ENTRYPOINT ["opentelemetry-instrument", "route_registry", "run"]
+ENTRYPOINT ["opentelemetry-instrument", "wormhole_route_registry", "run"]

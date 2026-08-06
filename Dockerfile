@@ -23,4 +23,5 @@ RUN pip3 install wormhole-route-registry==$project_version \
 # active site-packages folder, and installs the corresponding instrumentation
     && opentelemetry-bootstrap -a install
 
-ENTRYPOINT ["opentelemetry-instrument", "wormhole_route_registry", "run"]
+ENTRYPOINT ["opentelemetry-instrument", "wormhole_route_registry"]
+CMD ["run"]

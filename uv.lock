@@ -12,7 +12,7 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P1W"
 
 [options.exclude-newer-package]
-route-registry = false
+wormhole-route-registry = false
 
 [[package]]
 name = "alembic"
@@ -1733,78 +1733,6 @@ wheels = [
 ]
 
 [[package]]
-name = "route-registry"
-source = { editable = "." }
-dependencies = [
-    { name = "alembic" },
-    { name = "apscheduler" },
-    { name = "attrs" },
-    { name = "authlib" },
-    { name = "bcrypt" },
-    { name = "celery" },
-    { name = "cryptography" },
-    { name = "dynaconf" },
-    { name = "fastapi", extra = ["standard"] },
-    { name = "fastapi-offline" },
-    { name = "itsdangerous" },
-    { name = "joserfc" },
-    { name = "jsonschema" },
-    { name = "multimethod" },
-    { name = "pendulum" },
-    { name = "psycopg2" },
-    { name = "requests" },
-    { name = "sqlalchemy" },
-    { name = "tenacity" },
-    { name = "tomli-w" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "bcrypt" },
-    { name = "bump-my-version" },
-    { name = "flask" },
-    { name = "jsonschema" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "tox" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.18.4" },
-    { name = "apscheduler", specifier = ">=3.11.2" },
-    { name = "attrs", specifier = ">=26.1.0" },
-    { name = "authlib", specifier = ">=1.7.2" },
-    { name = "bcrypt", specifier = ">=5.0.0" },
-    { name = "celery", extras = ["librabbitmq"], specifier = ">=5.6.3" },
-    { name = "cryptography", specifier = ">=48.0.0" },
-    { name = "dynaconf", specifier = ">=3.2.13" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.136.1" },
-    { name = "fastapi-offline", specifier = "==1.7.6" },
-    { name = "itsdangerous", specifier = ">=2.2.0" },
-    { name = "joserfc", specifier = ">=1.7.1" },
-    { name = "jsonschema", specifier = ">=4.26.0" },
-    { name = "multimethod", specifier = ">=2.0.2" },
-    { name = "pendulum", specifier = ">=3.2.0" },
-    { name = "psycopg2", specifier = ">=2.9.12" },
-    { name = "requests", specifier = ">=2.34.2" },
-    { name = "sqlalchemy", specifier = ">=2.0.49" },
-    { name = "tenacity", specifier = ">=9.1.4" },
-    { name = "tomli-w", specifier = ">=1.2.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "bcrypt" },
-    { name = "bump-my-version" },
-    { name = "flask" },
-    { name = "jsonschema" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "tox" },
-]
-
-[[package]]
 name = "rpds-py"
 version = "0.30.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2403,4 +2331,76 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/dd/b2/381be8cfdee792dd117872481b6e378f85c957dd7c5bca38897b08f765fd/werkzeug-3.1.8.tar.gz", hash = "sha256:9bad61a4268dac112f1c5cd4630a56ede601b6ed420300677a869083d70a4c44", size = 875852, upload-time = "2026-04-02T18:49:14.268Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/93/8c/2e650f2afeb7ee576912636c23ddb621c91ac6a98e66dc8d29c3c69446e1/werkzeug-3.1.8-py3-none-any.whl", hash = "sha256:63a77fb8892bf28ebc3178683445222aa500e48ebad5ec77b0ad80f8726b1f50", size = 226459, upload-time = "2026-04-02T18:49:12.72Z" },
+]
+
+[[package]]
+name = "wormhole-route-registry"
+source = { editable = "." }
+dependencies = [
+    { name = "alembic" },
+    { name = "apscheduler" },
+    { name = "attrs" },
+    { name = "authlib" },
+    { name = "bcrypt" },
+    { name = "celery" },
+    { name = "cryptography" },
+    { name = "dynaconf" },
+    { name = "fastapi", extra = ["standard"] },
+    { name = "fastapi-offline" },
+    { name = "itsdangerous" },
+    { name = "joserfc" },
+    { name = "jsonschema" },
+    { name = "multimethod" },
+    { name = "pendulum" },
+    { name = "psycopg2" },
+    { name = "requests" },
+    { name = "sqlalchemy" },
+    { name = "tenacity" },
+    { name = "tomli-w" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "bcrypt" },
+    { name = "bump-my-version" },
+    { name = "flask" },
+    { name = "jsonschema" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "tox" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.18.4" },
+    { name = "apscheduler", specifier = ">=3.11.2" },
+    { name = "attrs", specifier = ">=26.1.0" },
+    { name = "authlib", specifier = ">=1.7.2" },
+    { name = "bcrypt", specifier = ">=5.0.0" },
+    { name = "celery", extras = ["librabbitmq"], specifier = ">=5.6.3" },
+    { name = "cryptography", specifier = ">=48.0.0" },
+    { name = "dynaconf", specifier = ">=3.2.13" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.136.1" },
+    { name = "fastapi-offline", specifier = "==1.7.6" },
+    { name = "itsdangerous", specifier = ">=2.2.0" },
+    { name = "joserfc", specifier = ">=1.7.1" },
+    { name = "jsonschema", specifier = ">=4.26.0" },
+    { name = "multimethod", specifier = ">=2.0.2" },
+    { name = "pendulum", specifier = ">=3.2.0" },
+    { name = "psycopg2", specifier = ">=2.9.12" },
+    { name = "requests", specifier = ">=2.34.2" },
+    { name = "sqlalchemy", specifier = ">=2.0.49" },
+    { name = "tenacity", specifier = ">=9.1.4" },
+    { name = "tomli-w", specifier = ">=1.2.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "bcrypt" },
+    { name = "bump-my-version" },
+    { name = "flask" },
+    { name = "jsonschema" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "tox" },
 ]

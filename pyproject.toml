@@ -145,7 +145,7 @@ deps = [
     "Flask",
     "pytest-asyncio",
 ]
-commands = [["pytest", "{posargs}"]]
+commands = [["pytest", { replace = "posargs", extend = true }]]
 
 [tool.tox.env.lint]
 deps = ["ruff==0.9.7"]

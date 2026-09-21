@@ -39,7 +39,7 @@ async def test_local_dev_authenticator_returns_configured_user(UOW, a_persisted_
 async def test_local_dev_authenticator_defaults_to_local_username(UOW):
     # Setup
     with mock.patch(
-            "route_registry.dependencies.get_local_username", return_value="machine_user"
+        "route_registry.dependencies.get_local_username", return_value="machine_user"
     ):
         auth = LocalDevAuthenticator(UOW, {})
 

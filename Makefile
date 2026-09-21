@@ -27,7 +27,10 @@ build:
 	uv build --wheel
 
 test: sync-dev
-	uvx tox -e py311
+	uvx tox -- -m "not e2e"
+
+test-e2e: generate-jwks sync-dev
+	uvx tox -- -m e2e
 
 run-dev: seed
 	DYNACONF_AUTH__auth_name=$(AUTH_NAME) \
@@ -41,7 +44,7 @@ run-dev: seed
 listen-tasks: sync-dev
 	uv run wormhole_route_registry listen-tasks
 
-jwks:
+generate-jwks:
 	uv run wormhole_route_registry generate-jwks --write-settings --overwrite
 
 migrate:

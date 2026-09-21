@@ -31,7 +31,7 @@ def seed(engine, UOW):
             mock.patch.object(command, "settings", fake_settings),
             mock.patch.object(command, "make_engine", return_value=engine),
             mock.patch.object(
-                command, "local_username", return_value=username or "machine_user"
+                command, "get_local_username", return_value=username or "machine_user"
             ),
         ):
             command.seed_dev_user(Namespace(uid=uid, admin=admin))

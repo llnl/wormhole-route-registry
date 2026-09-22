@@ -9,6 +9,11 @@ auth_name = "base_auth"
 
 [default.auth.base_auth]
 
+[default.auth.local_dev]
+# Defaults to the local machine username when unset.
+uid = ""
+is_admin = true
+
 [default.auth.authlib_oidc]
 url = "http://localhost:8443"
 

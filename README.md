@@ -199,6 +199,86 @@ Generate OpenAPI:
 uv run route_registry openapi
 ```
 
+### Local Dev Authentication
+
+Most endpoints require an authenticated user, which normally means standing up
+an external identity provider. For local development there is a `local_dev`
+authenticator that skips authentication entirely and resolves every request to
+a single seeded user.
+
+**This is for local development only.** It accepts no credential and verifies
+nothing; never enable it anywhere else.
+
+Seed the user (defaults to your machine username, idempotent):
+
+```shell
+uv run wormhole_route_registry seed-dev-user
+```
+
+Then start the server with the authenticator enabled:
+
+```shell
+DYNACONF_AUTH__auth_name=local_dev uv run wormhole_route_registry run
+```
+
+Or do both in one step -- `make run-dev` seeds the user and starts the server
+with `local_dev` auth already enabled:
+
+```shell
+make run-dev
+```
+
+Every API call now authenticates as that user, with no header, cookie or token:
+
+```shell
+curl http://localhost:5001/api/v1/community
+```
+
+Options:
+
+- `--uid <uid>` seeds a specific user instead of your machine username.
+- `--admin` / `--no-admin` control admin rights; re-running reconciles the flag
+  on an already-seeded user. Defaults to `auth.local_dev.is_admin` (`true`).
+- Exporting `LOGNAME=<uid>` makes both the command and the authenticator act as
+  another seeded user, which is handy for testing non-admin behavior.
+
+Rather than setting the environment variable on every run, you can opt in from
+`settings.local.toml`, which is not checked in:
+
+```toml
+dynaconf_merge = true
+
+[default.auth]
+auth_name = "local_dev"
+
+[default.auth.local_dev]
+uid = ""        # defaults to the local machine username
+is_admin = true
+```
+
+The default `auth_name` in `route_registry/config/settings.toml` stays
+`base_auth` -- do not change it there.
+
+### Common Commands
+
+A `Makefile` wraps the commands above:
+
+| Target | What it does |
+| --- | --- |
+| `make sync-dev` | Install the dev environment |
+| `make sync-prod` | Install from the lockfile, without dev dependencies |
+| `make test` | Run the test suite under tox |
+| `make seed` | Seed the local dev user |
+| `make run-dev` | Seed, then run the API with `local_dev` auth |
+| `make listen-tasks` | Run the Celery worker (needs RabbitMQ) |
+| `make migrate` | Apply alembic migrations |
+| `make jwks` | Generate local JWKS and `settings.local.toml` |
+| `make openapi` | Write `openapi.json` |
+| `make lock` / `make lock-check` | Regenerate / verify `uv.lock` |
+| `make build` | Build the wheel into `dist/` |
+
+`HOST` and `PORT` override the bind address: `make run-dev PORT=8001`.
+
 ## API and Workflow Notes
 
 Important workflows:

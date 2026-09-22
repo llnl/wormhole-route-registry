@@ -42,3 +42,10 @@ class FakeOIDCAuthenticator:
 
     def setup(self, app) -> None:
         return None
+
+
+@define
+class FakeAuthenticatorFactory:
+    @staticmethod
+    def make_authenticator(uow, config) -> FakeOIDCAuthenticator:
+        return FakeOIDCAuthenticator(config=config, uow=uow)

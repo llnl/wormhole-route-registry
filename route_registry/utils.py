@@ -1,5 +1,6 @@
-import hashlib
 import base64
+import getpass
+import hashlib
 from cryptography.hazmat.primitives.asymmetric.rsa import (
     generate_private_key as rsa_generate_private_key,
     RSAPublicKey,
@@ -63,3 +64,9 @@ def urljoin(base: str, path: str, replace: bool = False, **kwargs) -> str:
         path = path.lstrip("/")
 
     return lib_urljoin(base, path, **kwargs)
+
+
+def get_local_username() -> str:
+    """Return the username of the account running this process."""
+
+    return getpass.getuser()

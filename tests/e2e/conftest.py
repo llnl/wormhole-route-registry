@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 
 from tests.helpers.fake_app import make_fake_app
 from tests.helpers.fake_holepunch import make_fake_holepunch
-from tests.helpers.fake_deps import FakeOIDCAuthenticator
+from tests.helpers.fake_deps import FakeAuthenticatorFactory
 
 
 @pytest.fixture(scope="session")
@@ -323,8 +323,7 @@ async def server(
             "route_registry.dependencies.extract_uid", new=extract_uid_mock_target
         ),
         mock.patch(
-            "route_registry.server.AuthenticatorFactory.make_authenticator",
-            new=FakeOIDCAuthenticator,
+            "route_registry.server.AuthenticatorFactory", new=FakeAuthenticatorFactory,
         ),
     ):
         server = make_server(UOW, config, task_proxy)

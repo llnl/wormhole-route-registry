@@ -12,7 +12,7 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P1W"
 
 [options.exclude-newer-package]
-route-registry = false
+wormhole-route-registry = false
 
 [[package]]
 name = "alembic"
@@ -1239,14 +1239,15 @@ wheels = [
 
 [[package]]
 name = "psycopg2"
-version = "2.9.12"
+version = "2.9.13"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c7/bc/f66df707ed1aec949fbf24e4460e4f4277a7ba23cdadb3965bb1f634ddb9/psycopg2-2.9.12.tar.gz", hash = "sha256:1dedb1c7a1d8552c4a6044c6b1c41a52e6a8e2d144af83eccac758076b1b7c15", size = 379683, upload-time = "2026-04-20T23:36:11.013Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/81/6ea19b8b28feb9405c8c87a307776614d6e404bdb98467d1ce10a39d2c1d/psycopg2-2.9.13.tar.gz", hash = "sha256:d36784fc2dae69523ba4b79c7d1d1b4d6e83e87836874f111262f4db940b16a6", size = 378068, upload-time = "2026-09-09T23:56:21.749Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/a1/9cc069f8efc92383d3823ef8805c932f5fda723b3f07d2a8ee019ae2919f/psycopg2-2.9.12-cp311-cp311-win_amd64.whl", hash = "sha256:2532c0cdc6ad18c9c35cd935cc3159712e14f05276a6d29a6435c52d24b840c1", size = 2756862, upload-time = "2026-04-20T23:33:17.206Z" },
-    { url = "https://files.pythonhosted.org/packages/7e/b2/7319dc488444b1dfe9ce89c4440df1d5425e2579e6ce9a63e2b70f648491/psycopg2-2.9.12-cp312-cp312-win_amd64.whl", hash = "sha256:83d48e66e18c301d832e93c984a7bcbc0f4ac3bb79e2137e3bc335978c756dc0", size = 2757068, upload-time = "2026-04-20T23:33:20.664Z" },
-    { url = "https://files.pythonhosted.org/packages/91/ab/03403779a251ca14a7f1b07a41c7aa735fd451f0aebe4c4f901a231167a4/psycopg2-2.9.12-cp313-cp313-win_amd64.whl", hash = "sha256:3d23e684927d37b95cee9a943f6927b04ae2fdcd056fd0e2a30929ee89fee5a9", size = 2757176, upload-time = "2026-04-20T23:33:23.577Z" },
-    { url = "https://files.pythonhosted.org/packages/73/4a/a3566f77501c21a6c2a1fc234dbe5dff74a86e3f150ef070e4ffb835e7f9/psycopg2-2.9.12-cp314-cp314-win_amd64.whl", hash = "sha256:a73d5513bfe929c56555006c7a9cc7ae6e4276aa99dd2b1e2544eb8bb54f8b23", size = 2848588, upload-time = "2026-04-20T23:33:25.983Z" },
+    { url = "https://files.pythonhosted.org/packages/79/51/31d303c9aec410b853861077acc7a9b1f0a5b43f003061f748ab486735f5/psycopg2-2.9.13-cp311-cp311-win_amd64.whl", hash = "sha256:d16e7a5f5e400ac51ca953d42255804eff6c8a9650b1a2074f6ca6261d740382", size = 2767445, upload-time = "2026-09-09T23:53:52.844Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/8a/820b2f5ec521db28b5f113d7d64b0264f775fef611265039ba0cb5101858/psycopg2-2.9.13-cp312-cp312-win_amd64.whl", hash = "sha256:10f7408b34412e8c0d4f8b1565541f1d651b1d00447857e5d8561b38f5c1a738", size = 2767613, upload-time = "2026-09-09T23:53:56.076Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/a5/a01216e7c2e477052469c0317a4e71e031293830c9882ca372bae167bec3/psycopg2-2.9.13-cp313-cp313-win_amd64.whl", hash = "sha256:165e25c1b0e616a1f28080c5c68bd2dc015051d83c90240b2171d3e76ca2b5ff", size = 2771568, upload-time = "2026-09-09T23:53:58.914Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/f9/f6e9d47ea04e09282c618f5eeb67634f39ea4b04acedd0a6d8da4d986d50/psycopg2-2.9.13-cp314-cp314-win_amd64.whl", hash = "sha256:a6f54fd8e0024f35240866b5dfff9ead2a0dbd33b8096eec438bc6093412842d", size = 2866943, upload-time = "2026-09-09T23:54:01.268Z" },
+    { url = "https://files.pythonhosted.org/packages/44/0f/da6a374ed5e3b4040c53b29ab57b8b26c0872900cf8aed2265790889a1e3/psycopg2-2.9.13-cp315-cp315-win_amd64.whl", hash = "sha256:0d2fc7eedfaca0586dcf1476454598428d0d8471d3b5cb55f92015a5f9d0af40", size = 2863865, upload-time = "2026-09-09T23:54:03.316Z" },
 ]
 
 [[package]]
@@ -1730,78 +1731,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/67/56/36d5d34210e5e7dfcd134eed8335b19e80ae940ee758f493e4f2b344dd70/rignore-0.7.6-pp311-pypy311_pp73-musllinux_1_2_armv7l.whl", hash = "sha256:c081f17290d8a2b96052b79207622aa635686ea39d502b976836384ede3d303c", size = 1139789, upload-time = "2025-11-05T21:40:42.119Z" },
     { url = "https://files.pythonhosted.org/packages/6b/5b/bb4f9420802bf73678033a4a55ab1bede36ce2e9b41fec5f966d83d932b3/rignore-0.7.6-pp311-pypy311_pp73-musllinux_1_2_i686.whl", hash = "sha256:57e8327aacc27f921968cb2a174f9e47b084ce9a7dd0122c8132d22358f6bd79", size = 1120308, upload-time = "2025-11-05T21:40:59.402Z" },
     { url = "https://files.pythonhosted.org/packages/ce/8b/a1299085b28a2f6135e30370b126e3c5055b61908622f2488ade67641479/rignore-0.7.6-pp311-pypy311_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:d8955b57e42f2a5434670d5aa7b75eaf6e74602ccd8955dddf7045379cd762fb", size = 1129444, upload-time = "2025-11-05T21:41:17.906Z" },
-]
-
-[[package]]
-name = "route-registry"
-source = { editable = "." }
-dependencies = [
-    { name = "alembic" },
-    { name = "apscheduler" },
-    { name = "attrs" },
-    { name = "authlib" },
-    { name = "bcrypt" },
-    { name = "celery" },
-    { name = "cryptography" },
-    { name = "dynaconf" },
-    { name = "fastapi", extra = ["standard"] },
-    { name = "fastapi-offline" },
-    { name = "itsdangerous" },
-    { name = "joserfc" },
-    { name = "jsonschema" },
-    { name = "multimethod" },
-    { name = "pendulum" },
-    { name = "psycopg2" },
-    { name = "requests" },
-    { name = "sqlalchemy" },
-    { name = "tenacity" },
-    { name = "tomli-w" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "bcrypt" },
-    { name = "bump-my-version" },
-    { name = "flask" },
-    { name = "jsonschema" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "tox" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.18.4" },
-    { name = "apscheduler", specifier = ">=3.11.2" },
-    { name = "attrs", specifier = ">=26.1.0" },
-    { name = "authlib", specifier = ">=1.7.2" },
-    { name = "bcrypt", specifier = ">=5.0.0" },
-    { name = "celery", extras = ["librabbitmq"], specifier = ">=5.6.3" },
-    { name = "cryptography", specifier = ">=48.0.0" },
-    { name = "dynaconf", specifier = ">=3.2.13" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.136.1" },
-    { name = "fastapi-offline", specifier = "==1.7.6" },
-    { name = "itsdangerous", specifier = ">=2.2.0" },
-    { name = "joserfc", specifier = ">=1.7.1" },
-    { name = "jsonschema", specifier = ">=4.26.0" },
-    { name = "multimethod", specifier = ">=2.0.2" },
-    { name = "pendulum", specifier = ">=3.2.0" },
-    { name = "psycopg2", specifier = ">=2.9.12" },
-    { name = "requests", specifier = ">=2.34.2" },
-    { name = "sqlalchemy", specifier = ">=2.0.49" },
-    { name = "tenacity", specifier = ">=9.1.4" },
-    { name = "tomli-w", specifier = ">=1.2.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "bcrypt" },
-    { name = "bump-my-version" },
-    { name = "flask" },
-    { name = "jsonschema" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "tox" },
 ]
 
 [[package]]
@@ -2403,4 +2332,76 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/dd/b2/381be8cfdee792dd117872481b6e378f85c957dd7c5bca38897b08f765fd/werkzeug-3.1.8.tar.gz", hash = "sha256:9bad61a4268dac112f1c5cd4630a56ede601b6ed420300677a869083d70a4c44", size = 875852, upload-time = "2026-04-02T18:49:14.268Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/93/8c/2e650f2afeb7ee576912636c23ddb621c91ac6a98e66dc8d29c3c69446e1/werkzeug-3.1.8-py3-none-any.whl", hash = "sha256:63a77fb8892bf28ebc3178683445222aa500e48ebad5ec77b0ad80f8726b1f50", size = 226459, upload-time = "2026-04-02T18:49:12.72Z" },
+]
+
+[[package]]
+name = "wormhole-route-registry"
+source = { editable = "." }
+dependencies = [
+    { name = "alembic" },
+    { name = "apscheduler" },
+    { name = "attrs" },
+    { name = "authlib" },
+    { name = "bcrypt" },
+    { name = "celery" },
+    { name = "cryptography" },
+    { name = "dynaconf" },
+    { name = "fastapi", extra = ["standard"] },
+    { name = "fastapi-offline" },
+    { name = "itsdangerous" },
+    { name = "joserfc" },
+    { name = "jsonschema" },
+    { name = "multimethod" },
+    { name = "pendulum" },
+    { name = "psycopg2" },
+    { name = "requests" },
+    { name = "sqlalchemy" },
+    { name = "tenacity" },
+    { name = "tomli-w" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "bcrypt" },
+    { name = "bump-my-version" },
+    { name = "flask" },
+    { name = "jsonschema" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "tox" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.18.4" },
+    { name = "apscheduler", specifier = ">=3.11.2" },
+    { name = "attrs", specifier = ">=26.1.0" },
+    { name = "authlib", specifier = ">=1.7.2" },
+    { name = "bcrypt", specifier = ">=5.0.0" },
+    { name = "celery", extras = ["librabbitmq"], specifier = ">=5.6.3" },
+    { name = "cryptography", specifier = ">=48.0.0" },
+    { name = "dynaconf", specifier = ">=3.2.13" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.136.1" },
+    { name = "fastapi-offline", specifier = "==1.7.6" },
+    { name = "itsdangerous", specifier = ">=2.2.0" },
+    { name = "joserfc", specifier = ">=1.7.1" },
+    { name = "jsonschema", specifier = ">=4.26.0" },
+    { name = "multimethod", specifier = ">=2.0.2" },
+    { name = "pendulum", specifier = ">=3.2.0" },
+    { name = "psycopg2", specifier = ">=2.9.12" },
+    { name = "requests", specifier = ">=2.34.2" },
+    { name = "sqlalchemy", specifier = ">=2.0.49" },
+    { name = "tenacity", specifier = ">=9.1.4" },
+    { name = "tomli-w", specifier = ">=1.2.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "bcrypt" },
+    { name = "bump-my-version" },
+    { name = "flask" },
+    { name = "jsonschema" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "tox" },
 ]

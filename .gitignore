@@ -125,3 +125,10 @@ node_modules
 
 # Ignore dynaconf secret files
 .secrets.*
+
+# Ignore dynaconf machine-local overrides
+settings.local.toml
+
+# Ignore DB files from tests
+results.db
+test.db

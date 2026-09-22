@@ -26,10 +26,13 @@ build:
 	rm -rf dist/
 	uv build --wheel
 
-test: sync-dev
+tests: sync-dev
+	uvx tox run
+
+test-no-e2e: sync-dev
 	uvx tox -- -m "not e2e"
 
-test-e2e: generate-jwks sync-dev
+test-e2e: sync-dev
 	uvx tox -- -m e2e
 
 run-dev: seed

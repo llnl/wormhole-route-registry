@@ -22,7 +22,7 @@ from ..services import (
     NotFound,
     AlreadyExists,
 )
-from ..models import JWTConfig, User
+from ..models import JWTConfig, Status, User, VerificationStatus
 
 
 def make_legacy_list_router(uow: BaseUOW):
@@ -45,8 +45,17 @@ def make_user_list_router(
     @router.get("")
     async def list_user_routes(
         user: Annotated[User, Depends(auth)],
+        name: str = None,
+        status: Status = None,
+        verification_status: VerificationStatus = None,
     ) -> list[PydanticRoute]:
-        routes = list_routes(uow, entity_id=user.id)
+        routes = list_routes(
+            uow,
+            verification_status=verification_status,
+            status=status,
+            name=name,
+            entity_id=user.id,
+        )
         return [from_route(route) for route in routes]
 
     return router

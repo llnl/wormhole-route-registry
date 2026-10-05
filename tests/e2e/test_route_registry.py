@@ -1638,8 +1638,9 @@ async def test_remove_user(UOW, identity_auth_header, server_api, a_persisted_us
     )
 
     # Verify
-    with UOW() as uow, pytest.raises(NotFound):
-        uow.entity_repo.get_user(a_persisted_user.uid)
+    with UOW() as uow:
+        with pytest.raises(NotFound):
+            uow.entity_repo.get_user(a_persisted_user.uid)
 
 
 async def test_list_users(UOW, identity_auth_header, server_api, a_persisted_user):
@@ -1680,8 +1681,9 @@ async def test_remove_group(UOW, identity_auth_header, server_api, a_persisted_g
     )
 
     # Verify
-    with UOW() as uow, pytest.raises(NotFound):
-        uow.entity_repo.get_group(a_persisted_group.name)
+    with UOW() as uow:
+        with pytest.raises(NotFound):
+            uow.entity_repo.get_group(a_persisted_group.name)
 
 
 async def test_list_groups(UOW, identity_auth_header, server_api, a_persisted_group):

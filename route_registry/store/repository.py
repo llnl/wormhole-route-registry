@@ -318,7 +318,7 @@ class SqlRouteRepo(SqlAlchemyRepo):
         name: str = None,
         entity_id: str = None,
     ) -> List[models.Route]:
-        conditions = list(conditions or [])
+        conditions = conditions or []
         query = (
             select(models.Route)
             .options(selectinload(models.Route.community))

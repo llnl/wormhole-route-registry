@@ -1,13 +1,14 @@
+from collections.abc import Callable
+from unittest import mock
+
 import pendulum
 import pytest
 import requests
-
+from fastapi import HTTPException
 from joserfc import jwt as jose_jwt
 from tenacity import retry, stop_after_attempt, wait_fixed
-from typing import Callable
-from unittest import mock
 
-from route_registry.models import Status, VerificationStatus, DomainType, AdminRole
+from route_registry.models import AdminRole, DomainType, Status, VerificationStatus
 from route_registry.services import create_piko_jwt
 from route_registry.store.repository import NotFound
 from route_registry.track import make_route_tracker
@@ -907,59 +908,289 @@ async def test_tracker_unverifies_route(
         tracker.stop()
 
 
-async def test_list_available(
-    server_api,
-    app_server,
-    holepunch_server,
-    task_queue,
-    a_dst_url,
-    a_persisted_user,
-    a_persisted_group,
-    a_persisted_domain,
-    a_route_name,
-    bind_subdomain,
-    registration_token,
-    make_authz,
-    server_mock_target,
-    extract_uid_mock_target,
-    UOW,
+async def test_v1_route_list_returns_only_active_routes(
+    server_api, UOW, a_domain, make_route, make_user
 ):
-    # Setup
-    src_url = a_persisted_domain.create_src_url(
-        a_route_name, user=a_persisted_user, bind_subdomain=bind_subdomain
+    active_route = make_route(
+        name="active",
+        src="active",
+        domain=a_domain,
+        status=Status.UP,
+        verification_status=VerificationStatus.VERIFIED,
+        entities=[make_user(uid="owner")],
     )
-    headers = {"X-Token": registration_token}
-    data = {"name": a_route_name, "domain_name": a_persisted_domain.name}
-    extract_uid_mock_target.return_value = a_persisted_user.uid
+    routes = [
+        active_route,
+        make_route(
+            name="down",
+            src="down",
+            domain=a_domain,
+            status=Status.DOWN,
+            verification_status=VerificationStatus.VERIFIED,
+            entities=[make_user(uid="other-owner")],
+        ),
+        make_route(
+            name="pending",
+            src="pending",
+            domain=a_domain,
+            status=Status.UP,
+            verification_status=VerificationStatus.PENDING,
+            entities=[make_user(uid="third-owner")],
+        ),
+    ]
+    with UOW() as uow:
+        uow.route_repo.add(routes)
 
-    # Execute
-    requests.post(f"{server_api}/v2/route", json=data, headers=headers)
+    resp = requests.get(f"{server_api}/v1/route")
 
-    # Set token in our authorization.json file
-    server_mock_target.return_value = make_authz()
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [active_route.id]
 
-    # Route is up
 
-    def verify_setup():
-        with UOW() as uow:
-            route = uow.route_repo.get_by_src(src_url)
-            assert route
-            assert route.status == Status.UP
-            assert route.verification_status == VerificationStatus.VERIFIED
+async def test_v2_route_list_returns_all_owned_routes(
+    server_api, UOW, a_domain, make_route, a_persisted_user, mock_oidc_call
+):
+    routes = [
+        make_route(
+            name="up",
+            src="up",
+            domain=a_domain,
+            status=Status.UP,
+            verification_status=VerificationStatus.VERIFIED,
+            entities=[a_persisted_user],
+        ),
+        make_route(
+            name="down",
+            src="down",
+            domain=a_domain,
+            status=Status.DOWN,
+            verification_status=VerificationStatus.PENDING,
+            entities=[a_persisted_user],
+        ),
+    ]
+    with UOW() as uow:
+        uow.route_repo.add(routes)
 
-    try_until_succeeds(verify_setup)
+    resp = requests.get(f"{server_api}/v2/route")
 
-    # Execute
-    routes = requests.get(f"{server_api}/latest/route").json()
+    assert resp.status_code == 200
+    assert {route["id"] for route in resp.json()} == {route.id for route in routes}
 
-    # Verify
-    route = routes[0]
-    assert route
-    assert route["src"] == src_url
-    assert route["rules"]["allowed"]["users"]
-    assert route["rules"]["allowed"]["groups"]
-    assert a_persisted_user.uid in route["rules"]["allowed"]["users"]
-    assert a_persisted_group.name in route["rules"]["allowed"]["groups"]
+
+async def test_v2_route_list_excludes_other_users_routes(
+    server_api, UOW, a_domain, make_route, make_user, a_persisted_user, mock_oidc_call
+):
+    owned_route = make_route(
+        name="owned",
+        src="owned",
+        domain=a_domain,
+        entities=[a_persisted_user],
+    )
+    other_route = make_route(
+        name="other",
+        src="other",
+        domain=a_domain,
+        entities=[make_user(uid="other-owner")],
+    )
+    with UOW() as uow:
+        uow.route_repo.add([owned_route, other_route])
+
+    resp = requests.get(f"{server_api}/v2/route")
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [owned_route.id]
+
+
+async def test_v2_route_list_requires_authentication(server_api):
+    with mock.patch("tests.helpers.fake_deps.oidc_call_target") as auth:
+        auth.side_effect = HTTPException(status_code=401)
+        resp = requests.get(f"{server_api}/v2/route")
+
+    assert resp.status_code == 401
+
+
+async def test_v2_route_list_filters_by_name(
+    server_api, UOW, a_domain, make_route, a_persisted_user, mock_oidc_call
+):
+    matching_route = make_route(
+        name="example",
+        src="example",
+        domain=a_domain,
+        entities=[a_persisted_user],
+    )
+    other_route = make_route(
+        name="other",
+        src="other",
+        domain=a_domain,
+        entities=[a_persisted_user],
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(f"{server_api}/v2/route", params={"name": "example"})
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+    assert resp.json()[0]["src"] == matching_route.src
+
+
+async def test_v2_route_name_filter_returns_no_matches(
+    server_api, UOW, a_domain, make_route, a_persisted_user, mock_oidc_call
+):
+    route = make_route(
+        name="example",
+        src="example",
+        domain=a_domain,
+        entities=[a_persisted_user],
+    )
+    with UOW() as uow:
+        uow.route_repo.add(route)
+
+    resp = requests.get(f"{server_api}/v2/route", params={"name": "missing"})
+
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+async def test_v2_route_name_filter_respects_ownership(
+    server_api, UOW, a_domain, make_route, make_user, a_persisted_user, mock_oidc_call
+):
+    owned_route = make_route(
+        name="example",
+        src="owned",
+        domain=a_domain,
+        entities=[a_persisted_user],
+    )
+    other_route = make_route(
+        name="example",
+        src="other",
+        domain=a_domain,
+        entities=[make_user(uid="other-owner")],
+    )
+    with UOW() as uow:
+        uow.route_repo.add([owned_route, other_route])
+
+    resp = requests.get(f"{server_api}/v2/route", params={"name": "example"})
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [owned_route.id]
+
+
+@pytest.mark.parametrize("route_status", list(Status))
+async def test_v2_route_list_filters_by_status(
+    route_status,
+    server_api,
+    UOW,
+    a_domain,
+    make_route,
+    a_persisted_user,
+    mock_oidc_call,
+):
+    matching_route = make_route(
+        name="matching",
+        src="matching",
+        domain=a_domain,
+        status=route_status,
+        entities=[a_persisted_user],
+    )
+    other_status = next(status for status in Status if status is not route_status)
+    other_route = make_route(
+        name="other",
+        src="other",
+        domain=a_domain,
+        status=other_status,
+        entities=[a_persisted_user],
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(f"{server_api}/v2/route", params={"status": route_status.value})
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+@pytest.mark.parametrize("verification_status", list(VerificationStatus))
+async def test_v2_route_list_filters_by_verification_status(
+    verification_status,
+    server_api,
+    UOW,
+    a_domain,
+    make_route,
+    a_persisted_user,
+    mock_oidc_call,
+):
+    matching_route = make_route(
+        name="matching",
+        src="matching",
+        domain=a_domain,
+        verification_status=verification_status,
+        entities=[a_persisted_user],
+    )
+    other_status = next(
+        status for status in VerificationStatus if status is not verification_status
+    )
+    other_route = make_route(
+        name="other",
+        src="other",
+        domain=a_domain,
+        verification_status=other_status,
+        entities=[a_persisted_user],
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(
+        f"{server_api}/v2/route",
+        params={"verification_status": verification_status.value},
+    )
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+async def test_v2_route_list_combines_filters(
+    server_api, UOW, a_domain, make_route, a_persisted_user, mock_oidc_call
+):
+    matching_route = make_route(
+        name="example",
+        src="matching",
+        domain=a_domain,
+        status=Status.DOWN,
+        verification_status=VerificationStatus.PENDING,
+        entities=[a_persisted_user],
+    )
+    other_route = make_route(
+        name="example",
+        src="other",
+        domain=a_domain,
+        status=Status.UP,
+        verification_status=VerificationStatus.PENDING,
+        entities=[a_persisted_user],
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(
+        f"{server_api}/v2/route",
+        params={
+            "name": "example",
+            "status": Status.DOWN.value,
+            "verification_status": VerificationStatus.PENDING.value,
+        },
+    )
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+@pytest.mark.parametrize("parameter", ["status", "verification_status"])
+async def test_v2_route_list_rejects_invalid_state_filter(
+    parameter, server_api, mock_oidc_call
+):
+    resp = requests.get(f"{server_api}/v2/route", params={parameter: "NOT_A_STATUS"})
+
+    assert resp.status_code == 422
 
 
 @pytest.mark.parametrize("lookup_id", ["id", "name"])
@@ -1112,29 +1343,197 @@ async def test_add_domain(UOW, domain_auth_header, server_api):
         assert domain_data["value"] == domain.value
 
 
-@pytest.mark.parametrize("verified", [None] + list(VerificationStatus))
-@pytest.mark.parametrize("status", [None] + list(Status))
-async def test_list_routes(
-    verified, status, UOW, a_domain, make_route, observer_auth_header, server_api
+async def test_admin_route_list_returns_all_routes(
+    UOW, a_domain, make_route, make_user, observer_auth_header, server_api
 ):
-    # Setup
-    params = {
-        "verification_status": verified,
-        "status": status,
-    }
+    routes = [
+        make_route(
+            name="up",
+            src="up",
+            domain=a_domain,
+            status=Status.UP,
+            verification_status=VerificationStatus.VERIFIED,
+            entities=[make_user(uid="owner")],
+        ),
+        make_route(
+            name="down",
+            src="down",
+            domain=a_domain,
+            status=Status.DOWN,
+            verification_status=VerificationStatus.UNVERIFIED,
+            entities=[make_user(uid="other-owner")],
+        ),
+    ]
     with UOW() as uow:
-        route = make_route(**{k: v for k, v in params.items() if v is not None})
-        route.domain = a_domain
-        uow.route_repo.add(route)
+        uow.route_repo.add(routes)
 
-    # Execute
+    resp = requests.get(f"{server_api}/v1/admin/route", headers=observer_auth_header)
+
+    assert resp.status_code == 200
+    assert {route["id"] for route in resp.json()} == {route.id for route in routes}
+
+
+async def test_admin_route_list_filters_by_name(
+    UOW, a_domain, make_route, observer_auth_header, server_api
+):
+    matching_route = make_route(name="example", src="matching", domain=a_domain)
+    other_route = make_route(name="other", src="other", domain=a_domain)
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
     resp = requests.get(
-        f"{server_api}/latest/admin/route", headers=observer_auth_header, params=params
+        f"{server_api}/v1/admin/route",
+        headers=observer_auth_header,
+        params={"name": "example"},
     )
 
-    # Verify
-    route_data = resp.json()[0]
-    assert route_data["id"] == route.id
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+@pytest.mark.parametrize("route_status", list(Status))
+async def test_admin_route_list_filters_by_status(
+    route_status, UOW, a_domain, make_route, observer_auth_header, server_api
+):
+    matching_route = make_route(
+        name="matching", src="matching", domain=a_domain, status=route_status
+    )
+    other_status = next(status for status in Status if status is not route_status)
+    other_route = make_route(
+        name="other", src="other", domain=a_domain, status=other_status
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(
+        f"{server_api}/v1/admin/route",
+        headers=observer_auth_header,
+        params={"status": route_status.value},
+    )
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+@pytest.mark.parametrize("verification_status", list(VerificationStatus))
+async def test_admin_route_list_filters_by_verification_status(
+    verification_status,
+    UOW,
+    a_domain,
+    make_route,
+    observer_auth_header,
+    server_api,
+):
+    matching_route = make_route(
+        name="matching",
+        src="matching",
+        domain=a_domain,
+        verification_status=verification_status,
+    )
+    other_status = next(
+        status for status in VerificationStatus if status is not verification_status
+    )
+    other_route = make_route(
+        name="other",
+        src="other",
+        domain=a_domain,
+        verification_status=other_status,
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(
+        f"{server_api}/v1/admin/route",
+        headers=observer_auth_header,
+        params={"verification_status": verification_status.value},
+    )
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+async def test_admin_route_list_combines_filters(
+    UOW, a_domain, make_route, observer_auth_header, server_api
+):
+    matching_route = make_route(
+        name="example",
+        src="matching",
+        domain=a_domain,
+        status=Status.DOWN,
+        verification_status=VerificationStatus.PENDING,
+    )
+    other_route = make_route(
+        name="example",
+        src="other",
+        domain=a_domain,
+        status=Status.UP,
+        verification_status=VerificationStatus.PENDING,
+    )
+    with UOW() as uow:
+        uow.route_repo.add([matching_route, other_route])
+
+    resp = requests.get(
+        f"{server_api}/v1/admin/route",
+        headers=observer_auth_header,
+        params={
+            "name": "example",
+            "status": Status.DOWN.value,
+            "verification_status": VerificationStatus.PENDING.value,
+        },
+    )
+
+    assert resp.status_code == 200
+    assert [route["id"] for route in resp.json()] == [matching_route.id]
+
+
+async def test_admin_route_list_returns_no_matches(
+    UOW, a_domain, make_route, observer_auth_header, server_api
+):
+    route = make_route(name="example", src="example", domain=a_domain)
+    with UOW() as uow:
+        uow.route_repo.add(route)
+
+    resp = requests.get(
+        f"{server_api}/v1/admin/route",
+        headers=observer_auth_header,
+        params={"name": "missing"},
+    )
+
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+async def test_admin_route_list_rejects_missing_token(server_api):
+    resp = requests.get(f"{server_api}/v1/admin/route")
+
+    assert resp.status_code == 422
+
+
+async def test_admin_route_list_rejects_invalid_token(server_api):
+    resp = requests.get(f"{server_api}/v1/admin/route", headers={"X-Token": "invalid"})
+
+    assert resp.status_code == 401
+
+
+async def test_admin_route_list_rejects_insufficient_role(
+    server_api, identity_auth_header
+):
+    resp = requests.get(f"{server_api}/v1/admin/route", headers=identity_auth_header)
+
+    assert resp.status_code == 403
+
+
+@pytest.mark.parametrize("parameter", ["status", "verification_status"])
+async def test_admin_route_list_rejects_invalid_state_filter(
+    parameter, server_api, observer_auth_header
+):
+    resp = requests.get(
+        f"{server_api}/v1/admin/route",
+        headers=observer_auth_header,
+        params={parameter: "NOT_A_STATUS"},
+    )
+
+    assert resp.status_code == 422
 
 
 async def test_list_active_routes(
@@ -1239,9 +1638,8 @@ async def test_remove_user(UOW, identity_auth_header, server_api, a_persisted_us
     )
 
     # Verify
-    with UOW() as uow:
-        with pytest.raises(NotFound):
-            uow.entity_repo.get_user(a_persisted_user.uid)
+    with UOW() as uow, pytest.raises(NotFound):
+        uow.entity_repo.get_user(a_persisted_user.uid)
 
 
 async def test_list_users(UOW, identity_auth_header, server_api, a_persisted_user):
@@ -1282,9 +1680,8 @@ async def test_remove_group(UOW, identity_auth_header, server_api, a_persisted_g
     )
 
     # Verify
-    with UOW() as uow:
-        with pytest.raises(NotFound):
-            uow.entity_repo.get_group(a_persisted_group.name)
+    with UOW() as uow, pytest.raises(NotFound):
+        uow.entity_repo.get_group(a_persisted_group.name)
 
 
 async def test_list_groups(UOW, identity_auth_header, server_api, a_persisted_group):

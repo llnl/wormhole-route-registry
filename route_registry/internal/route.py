@@ -24,13 +24,10 @@ def make_router(
 
     @router.get("")
     async def _list(
-        verification_status: str = None,
-        status: str = None,
+        verification_status: VerificationStatus = None,
+        status: Status = None,
         name: str = None,
     ) -> list[PydanticRoute]:
-        verification_status = adapter.to_verification_status(verification_status)
-        status = adapter.to_status(status)
-
         return [
             adapter.from_route(route)
             for route in list_routes(

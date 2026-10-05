@@ -338,9 +338,7 @@ class SqlRouteRepo(SqlAlchemyRepo):
             conditions.append(models.Route.name == name)
 
         if entity_id:
-            conditions.append(
-                models.Route.entities.any(models.Entity.id == entity_id)
-            )
+            conditions.append(models.Route.entities.any(models.Entity.id == entity_id))
 
         if conditions:
             query = query.where(and_(*conditions))

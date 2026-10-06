@@ -315,6 +315,8 @@ class SqlRouteRepo(SqlAlchemyRepo):
         verification: models.VerificationStatus = None,
         status: models.Status = None,
         conditions: list = None,
+        name: str = None,
+        entity_id: str = None,
     ) -> List[models.Route]:
         conditions = conditions or []
         query = (
@@ -331,6 +333,12 @@ class SqlRouteRepo(SqlAlchemyRepo):
 
         if status:
             conditions.append(models.Route.status == status)
+
+        if name:
+            conditions.append(models.Route.name == name)
+
+        if entity_id:
+            conditions.append(models.Route.entities.any(models.Entity.id == entity_id))
 
         if conditions:
             query = query.where(and_(*conditions))

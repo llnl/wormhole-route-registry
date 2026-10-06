@@ -907,7 +907,7 @@ async def test_tracker_unverifies_route(
         tracker.stop()
 
 
-async def test_list_available(
+async def test_list_available_legacy(
     server_api,
     app_server,
     holepunch_server,
@@ -950,7 +950,7 @@ async def test_list_available(
     try_until_succeeds(verify_setup)
 
     # Execute
-    routes = requests.get(f"{server_api}/latest/route").json()
+    routes = requests.get(f"{server_api}/v1/route").json()
 
     # Verify
     route = routes[0]
@@ -1112,20 +1112,77 @@ async def test_add_domain(UOW, domain_auth_header, server_api):
         assert domain_data["value"] == domain.value
 
 
-@pytest.mark.parametrize("verified", [None] + list(VerificationStatus))
-@pytest.mark.parametrize("status", [None] + list(Status))
+@pytest.mark.parametrize(
+    ("verification_status", "status", "name"),
+    [
+        (None, None, None),
+        (VerificationStatus.VERIFIED, None, None),
+        (None, Status.UP, None),
+        (None, None, "matching-route"),
+        (VerificationStatus.VERIFIED, Status.UP, None),
+        (VerificationStatus.VERIFIED, None, "matching-route"),
+        (None, Status.UP, "matching-route"),
+        (VerificationStatus.VERIFIED, Status.UP, "matching-route"),
+    ],
+)
 async def test_list_routes(
-    verified, status, UOW, a_domain, make_route, observer_auth_header, server_api
+    verification_status,
+    status,
+    name,
+    UOW,
+    a_domain,
+    make_route,
+    observer_auth_header,
+    server_api,
 ):
     # Setup
     params = {
-        "verification_status": verified,
+        "verification_status": verification_status,
         "status": status,
+        "name": name,
     }
+
+    # This route satisfies every filter supplied by the current test case.
+    matching_route = make_route(
+        src="https://localhost:5000/matching",
+        verification_status=verification_status or VerificationStatus.UNVERIFIED,
+        status=status or Status.DOWN,
+        name=name or "matching-route",
+    )
+    # Each additional route differs from the matching route in exactly one field.
+    # This proves that active filters exclude mismatches without allowing unrelated
+    # fields to affect the result.
+    routes = [
+        matching_route,
+        make_route(
+            src="https://localhost:5000/different-verification-status",
+            verification_status=next(
+                value
+                for value in VerificationStatus
+                if value is not matching_route.verification_status
+            ),
+            status=matching_route.status,
+            name=matching_route.name,
+        ),
+        make_route(
+            src="https://localhost:5000/different-status",
+            verification_status=matching_route.verification_status,
+            status=next(
+                value for value in Status if value is not matching_route.status
+            ),
+            name=matching_route.name,
+        ),
+        make_route(
+            src="https://localhost:5000/different-name",
+            verification_status=matching_route.verification_status,
+            status=matching_route.status,
+            name="different-route",
+        ),
+    ]
     with UOW() as uow:
-        route = make_route(**{k: v for k, v in params.items() if v is not None})
-        route.domain = a_domain
-        uow.route_repo.add(route)
+        for route in routes:
+            route.domain = a_domain
+            uow.route_repo.add(route)
 
     # Execute
     resp = requests.get(
@@ -1133,8 +1190,22 @@ async def test_list_routes(
     )
 
     # Verify
-    route_data = resp.json()[0]
-    assert route_data["id"] == route.id
+    resp.raise_for_status()
+    # Apply the expected AND semantics: a route must satisfy every active filter.
+    # Comparing complete ID sets verifies both inclusion and exclusion.
+    expected_route_ids = {
+        route.id
+        for route in routes
+        if (
+            (
+                verification_status is None
+                or route.verification_status is verification_status
+            )
+            and (status is None or route.status is status)
+            and (name is None or route.name == name)
+        )
+    }
+    assert {route_data["id"] for route_data in resp.json()} == expected_route_ids
 
 
 async def test_list_active_routes(

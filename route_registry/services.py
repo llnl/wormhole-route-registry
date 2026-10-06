@@ -162,10 +162,19 @@ def register_route(
 
 
 def list_routes(
-    UOW: BaseUOW, verification_status: VerificationStatus, status: Status
+    UOW: BaseUOW,
+    verification_status: VerificationStatus = None,
+    status: Status = None,
+    name: str = None,
+    entity_id: str = None,
 ) -> list[Route]:
     with UOW() as uow:
-        return uow.route_repo.list(verification=verification_status, status=status)
+        return uow.route_repo.list(
+            verification=verification_status,
+            status=status,
+            name=name,
+            entity_id=entity_id,
+        )
 
 
 def list_available_routes(UOW: BaseUOW) -> list[Route]:

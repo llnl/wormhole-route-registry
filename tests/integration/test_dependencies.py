@@ -112,7 +112,7 @@ def test_local_dev_authenticator_built_by_the_factory(UOW, base_config):
     auth_config = base_config["AUTH"] | {"auth_name": "local_dev"}
 
     with mock.patch(
-            "route_registry.dependencies.get_local_username", return_value="machine_user"
+        "route_registry.dependencies.get_local_username", return_value="machine_user"
     ):
         auth = AuthenticatorFactory().make_authenticator(UOW, auth_config)
 

@@ -1162,7 +1162,9 @@ async def test_list_routes(
         make_route(
             src="https://localhost:5000/different-status",
             verification_status=matching_route.verification_status,
-            status=next(value for value in Status if value is not matching_route.status),
+            status=next(
+                value for value in Status if value is not matching_route.status
+            ),
             name=matching_route.name,
         ),
         make_route(
@@ -1188,7 +1190,10 @@ async def test_list_routes(
         route.id
         for route in routes
         if (
-            (verification_status is None or route.verification_status is verification_status)
+            (
+                verification_status is None
+                or route.verification_status is verification_status
+            )
             and (status is None or route.status is status)
             and (name is None or route.name == name)
         )

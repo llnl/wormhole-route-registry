@@ -1141,12 +1141,17 @@ async def test_list_routes(
         "status": status,
         "name": name,
     }
+
+    # This route satisfies every filter supplied by the current test case.
     matching_route = make_route(
         src="https://localhost:5000/matching",
         verification_status=verification_status or VerificationStatus.UNVERIFIED,
         status=status or Status.DOWN,
         name=name or "matching-route",
     )
+    # Each additional route differs from the matching route in exactly one field.
+    # This proves that active filters exclude mismatches without allowing unrelated
+    # fields to affect the result.
     routes = [
         matching_route,
         make_route(
@@ -1186,6 +1191,8 @@ async def test_list_routes(
 
     # Verify
     resp.raise_for_status()
+    # Apply the expected AND semantics: a route must satisfy every active filter.
+    # Comparing complete ID sets verifies both inclusion and exclusion.
     expected_route_ids = {
         route.id
         for route in routes

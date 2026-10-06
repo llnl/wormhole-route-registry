@@ -38,6 +38,7 @@ def make_router(
             )
         ]
 
+    # Keep for backwards compatability
     @router.get("/active")
     async def list_active() -> list[PydanticRoute]:
         return [

@@ -323,7 +323,8 @@ async def server(
             "route_registry.dependencies.extract_uid", new=extract_uid_mock_target
         ),
         mock.patch(
-            "route_registry.server.AuthenticatorFactory", new=FakeAuthenticatorFactory,
+            "route_registry.server.AuthenticatorFactory",
+            new=FakeAuthenticatorFactory,
         ),
     ):
         server = make_server(UOW, config, task_proxy)

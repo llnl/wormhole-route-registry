@@ -2,7 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-ARG project_version="0.1.3"
+ARG project_version="0.1.4"
 
 COPY pyproject.toml pyproject.toml
 COPY alembic alembic

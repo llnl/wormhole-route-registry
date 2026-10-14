@@ -16,12 +16,49 @@ from ..services import (
     create_piko_jwt,
     get_user_community,
     list_available_routes,
+    list_routes,
     register_route,
     NotAllowed,
     NotFound,
     AlreadyExists,
 )
-from ..models import JWTConfig, User
+from ..models import JWTConfig, Status, User, VerificationStatus
+
+
+def make_legacy_list_router(uow: BaseUOW):
+    router = APIRouter(prefix="/route")
+
+    @router.get("")
+    async def list_available() -> list[PydanticRoute]:
+        routes = list_available_routes(uow)
+        return [from_route(route) for route in routes]
+
+    return router
+
+
+def make_user_list_router(
+    uow: BaseUOW,
+    auth: TokenOrFallbackAuthenticator,
+):
+    router = APIRouter(prefix="/route")
+
+    @router.get("")
+    async def list_user_routes(
+        user: Annotated[User, Depends(auth)],
+        name: str = None,
+        status: Status = None,
+        verification_status: VerificationStatus = None,
+    ) -> list[PydanticRoute]:
+        routes = list_routes(
+            uow,
+            verification_status=verification_status,
+            status=status,
+            name=name,
+            entity_id=user.id,
+        )
+        return [from_route(route) for route in routes]
+
+    return router
 
 
 def make_router(
@@ -37,11 +74,6 @@ def make_router(
     tunnel_url = url_config["tunnel"]["base_url"]
     tunnel_connect_url = url_config["tunnel"]["connect_url"]
     token_service_url = url_config["token_service"]["base_url"]
-
-    @router.get("")
-    async def list_available() -> list[PydanticRoute]:
-        routes = list_available_routes(uow)
-        return [from_route(rt) for rt in routes]
 
     @router.post("")
     async def register(

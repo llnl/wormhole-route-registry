@@ -22,7 +22,11 @@ from .models import JWTConfig
 from .internal.token import make_router as make_admin_token_router
 from .routers.jwt import make_router as make_jwt_router
 from .routers.community import make_router as make_community_router
-from .routers.route import make_router as make_route_router
+from .routers.route import (
+    make_legacy_list_router,
+    make_router as make_route_router,
+    make_user_list_router,
+)
 from .routers.well_known import make_router as make_well_known_router
 from .service.uow import BaseUOW
 
@@ -99,6 +103,16 @@ def make_app(UOW, config: dict, task_proxy: TaskProxy) -> FastAPIOffline:
         Endpoint(api_version, make_admin_token_router(UOW, auth), public=False),
         Endpoint(
             api_version,
+            make_legacy_list_router(UOW),
+            versions=["v1"],
+        ),
+        Endpoint(
+            api_version,
+            make_user_list_router(UOW, token_or_fallback_auth),
+            versions=["v2", "latest"],
+        ),
+        Endpoint(
+            api_version,
             make_route_router(
                 UOW,
                 task_proxy,
@@ -106,7 +120,7 @@ def make_app(UOW, config: dict, task_proxy: TaskProxy) -> FastAPIOffline:
                 url_config,
                 token_or_fallback_auth,
             ),
-            versions=["v1", "v2", "stable", "latest"],
+            versions=["v1", "v2", "latest"],
         ),
     ]
 

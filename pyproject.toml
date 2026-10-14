@@ -148,6 +148,7 @@ deps = [
 commands = [["pytest", { replace = "posargs", extend = true }]]
 
 [tool.tox.env.lint]
+skip_install = true
 deps = ["ruff==0.9.7"]
 commands = [
     ["ruff", "check", "route_registry"],

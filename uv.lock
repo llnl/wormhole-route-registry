@@ -73,14 +73,14 @@ wheels = [
 
 [[package]]
 name = "apscheduler"
-version = "3.11.2"
+version = "3.11.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "tzlocal" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/07/12/3e4389e5920b4c1763390c6d371162f3784f86f85cd6d6c1bfe68eef14e2/apscheduler-3.11.2.tar.gz", hash = "sha256:2a9966b052ec805f020c8c4c3ae6e6a06e24b1bf19f2e11d91d8cca0473eef41", size = 108683, upload-time = "2025-12-22T00:39:34.884Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/6b/eeff360196bb20b312c9e762a820fd1b2c6d809466c755ef57863478e454/apscheduler-3.11.3.tar.gz", hash = "sha256:cd2fcc9330039a81a5893472ad49facf23a6d5604cbe1d918c835c6de7834d5a", size = 110312, upload-time = "2026-06-28T19:39:22.493Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/64/2e54428beba8d9992aa478bb8f6de9e4ecaa5f8f513bcfd567ed7fb0262d/apscheduler-3.11.2-py3-none-any.whl", hash = "sha256:ce005177f741409db4e4dd40a7431b76feb856b9dd69d57e0da49d6715bfd26d", size = 64439, upload-time = "2025-12-22T00:39:33.303Z" },
+    { url = "https://files.pythonhosted.org/packages/42/c9/8638db32514dbb9157b3d82680c6faea89283523edf9ed2415ea3884f2ae/apscheduler-3.11.3-py3-none-any.whl", hash = "sha256:bbeb2ec02d23d3c06a6c07ed7f0f3939ada6680eb121fae809a69bb42c537a30", size = 66024, upload-time = "2026-06-28T19:39:20.982Z" },
 ]
 
 [[package]]
@@ -656,14 +656,14 @@ wheels = [
 
 [[package]]
 name = "fastapi-offline"
-version = "1.7.6"
+version = "1.7.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/8e/6f1d86982f09ecf9d326c7313d2e6be0a96d979130a87f61022c807a7414/fastapi_offline-1.7.6.tar.gz", hash = "sha256:c84d08584faa646932951b493106992caa79b838e454f14dd410cef9a1a5e07d", size = 745483, upload-time = "2026-01-15T04:29:43.593Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/15/a5/f650b565354d38f98211683a7b5c3578d450848421444799cb51da8e562f/fastapi_offline-1.7.7.tar.gz", hash = "sha256:aeeabe67dd40f867ab0fe64dd8de742949e36ba5f3ac6aeb055baef274ed91d0", size = 777678, upload-time = "2026-06-19T20:43:28.938Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/56/10bd6900c99d9ecb3d803583b3736e8d741f19f04dd39e36aa7ad776c638/fastapi_offline-1.7.6-py3-none-any.whl", hash = "sha256:24d6851b5a94c50f669594b7ab9d1bbe3a4c0a53c4f4e9ce47798ff4591790d2", size = 744654, upload-time = "2026-01-15T04:29:41.943Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/de/808ff88dac73c97ad32c653f92f6751ea5a0a211ae1dffd471125e63a31e/fastapi_offline-1.7.7-py3-none-any.whl", hash = "sha256:60c8399fd7d3e3b01510e14468709e3dea1a0e773ef920372d057392d736a1f9", size = 777007, upload-time = "2026-06-19T20:43:27.767Z" },
 ]
 
 [[package]]
@@ -970,14 +970,14 @@ wheels = [
 
 [[package]]
 name = "joserfc"
-version = "1.7.3"
+version = "1.7.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d4/c6/b1cac0280f8efc57626ea8804866b37099f23cae11b1485a42b213245e31/joserfc-1.7.3.tar.gz", hash = "sha256:116955c2587139dba20621fd0bd7fc9255fa960c9fe7f43c43ebef2e801dcfcf", size = 233821, upload-time = "2026-07-08T12:41:42.66Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/94/80fea1514b7c6d7d37804d3fe9ca81455f633347fc98731bd71ffe1faa17/joserfc-1.7.5.tar.gz", hash = "sha256:d5ff536e658e17664f8c1b1ab60dc4aa62aa973fcef1edd33cc44bda45d6f5ea", size = 234990, upload-time = "2026-08-29T13:05:42.057Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7d/f5/650b59d1b74f5befb7a7a7e7d7c92a26b94256df3541e2b4914152cd177a/joserfc-1.7.3-py3-none-any.whl", hash = "sha256:7c39f3f2c943dbc03122747fa8ebbd8e156e54904cf25651b452f4d2634a6075", size = 70982, upload-time = "2026-07-08T12:41:41.521Z" },
+    { url = "https://files.pythonhosted.org/packages/67/c5/82addfd375e5ee6520644e0553e4aadde92d668c4fc99cc716d337fe7bb3/joserfc-1.7.5-py3-none-any.whl", hash = "sha256:add2c2c84e8373b084d526a8b53daba5d7a513a118cd2dcd9fc9f979d0922159", size = 71269, upload-time = "2026-08-29T13:05:40.718Z" },
 ]
 
 [[package]]
@@ -2382,7 +2382,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=48.0.0" },
     { name = "dynaconf", specifier = ">=3.2.13" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.136.1" },
-    { name = "fastapi-offline", specifier = "==1.7.6" },
+    { name = "fastapi-offline", specifier = "==1.7.7" },
     { name = "itsdangerous", specifier = ">=2.2.0" },
     { name = "joserfc", specifier = ">=1.7.1" },
     { name = "jsonschema", specifier = ">=4.26.0" },

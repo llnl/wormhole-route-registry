@@ -20,4 +20,7 @@ def test_from_route(UOW, a_persisted_route, a_persisted_rule):
     assert p_route
     assert p_route.src == route.src
     assert p_route.dst == route.dst
+    assert p_route.status == route.status
+    assert p_route.verification_status == route.verification_status
+    assert p_route.last_contact == route.last_contact
     assert a_persisted_rule.entity.uid in p_route.rules.disallowed.users

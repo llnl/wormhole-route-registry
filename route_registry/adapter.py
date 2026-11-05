@@ -103,6 +103,9 @@ def from_route(route: Route, with_rules: bool = True) -> PydanticRoute:
         token=route.token,
         community_id=route.community_id,
         community_name=route.community.name if route.community else None,
+        status=route.status,
+        verification_status=route.verification_status,
+        last_contact=route.last_contact,
     )
 
     if not with_rules:

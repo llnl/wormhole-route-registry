@@ -962,6 +962,30 @@ async def test_list_available_legacy(
     assert a_persisted_group.name in route["rules"]["allowed"]["groups"]
 
 
+async def test_list_user_routes(
+    UOW, server_api, mock_oidc_call, a_persisted_user, a_persisted_route
+):
+    # Setup
+    with UOW() as uow:
+        user = uow.entity_repo.get(a_persisted_user.id)
+        route = uow.route_repo.get(a_persisted_route.id)
+        route.status = Status.MISCONFIGURED
+        route.verification_status = VerificationStatus.VERIFIED
+        user.routes.append(route)
+        last_contact = route.last_contact
+
+    # Execute
+    resp = requests.get(f"{server_api}/latest/route")
+
+    # Verify
+    resp.raise_for_status()
+    (route_data,) = resp.json()
+    assert route_data["id"] == a_persisted_route.id
+    assert route_data["status"] == Status.MISCONFIGURED
+    assert route_data["verification_status"] == VerificationStatus.VERIFIED
+    assert pendulum.parse(route_data["last_contact"]) == last_contact
+
+
 @pytest.mark.parametrize("lookup_id", ["id", "name"])
 async def test_get_community(
     UOW, lookup_id, server_api, mock_oidc_call, a_persisted_community

@@ -105,38 +105,9 @@ settings override when requested. Treat generated private keys as secrets.
 
 ## Deployment
 
-### OpenShift and Helm
-
-Production and development deployments are CI/OpenShift/Helm based. The parent
-chart in `helm/route_registry` deploys:
-
-- `route-registry-core`: FastAPI API service.
-- `route-registry-worker`: Celery worker for route validation tasks.
-- `postgres`: database stateful workload.
-- `rabbitmq`: broker for Celery tasks.
-
-The core image starts the API with OpenTelemetry instrumentation. The worker
-image starts `route_registry listen-tasks`. The core deployment runs an init
-container that executes `scripts/migrate-db`, which waits for Postgres and runs:
-
-```shell
-alembic upgrade head
-```
-
-Required runtime secrets include:
-
-| Secret | Purpose |
-| --- | --- |
-| `postgres-credentials` | Supplies `POSTGRESQL_USER` and `POSTGRESQL_PASSWORD` to the API and migration container. |
-| `rabbitmq-secret` | Supplies `rabbitmq-username` and `rabbitmq-password`. |
-| `route-registry` | Supplies sensitive Dynaconf values such as auth/JWT/OIDC/admin secrets. |
-
-Manual deployment from `route-registry/helm/route_registry` follows the normal
-Helm pattern:
-
-```shell
-helm upgrade --install route-registry . -f values.yaml
-```
+Deploy Route Registry with the consolidated Wormhole Helm chart in
+[llnl/wormhole](https://github.com/llnl/wormhole/tree/main/helm/wormhole),
+which documents the required secrets and values.
 
 CI validates, publishes, builds the API and worker images, copies images into
 OpenShift, deploys pre-production automatically for new versions, and deploys

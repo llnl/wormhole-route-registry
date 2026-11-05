@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from pydantic import BaseModel
-from .models import AdminRole
+from .models import AdminRole, Status, VerificationStatus
 
 
 class User(BaseModel):
@@ -65,6 +67,9 @@ class Route(BaseModel):
     jwt: str | None = None
     community_id: str | None = None
     rules: Rules | None = Rules()
+    status: Status | None = None
+    verification_status: VerificationStatus | None = None
+    last_contact: datetime | None = None
 
 
 class RegistrationRequest(BaseModel):

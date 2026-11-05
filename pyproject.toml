@@ -117,21 +117,6 @@ filename = "Dockerfile"
 search = "project_version=\"{current_version}\""
 replace = "project_version=\"{new_version}\""
 
-[[tool.bumpversion.files]]
-filename = "helm/route_registry/values.yaml"
-search = "tag: \"{current_version}\""
-replace = "tag: \"{new_version}\""
-
-[[tool.bumpversion.files]]
-filename = "helm/route_registry/Chart.yaml"
-search = "appVersion: \"{current_version}\""
-replace = "appVersion: \"{new_version}\""
-
-[[tool.bumpversion.files]]
-filename = "helm/route_registry/charts/route-registry-core/Chart.yaml"
-search = "appVersion: \"{current_version}\""
-replace = "appVersion: \"{new_version}\""
-
 [tool.tox]
 requires = ["tox>=4.19"]
 

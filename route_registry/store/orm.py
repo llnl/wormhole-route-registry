@@ -158,7 +158,9 @@ mapper_registry.map_imperatively(
     properties={
         "communities": relationship(models.Community, back_populates="entity"),
         "requests": relationship(models.MembershipRequest, back_populates="entity"),
-        "rules": relationship(models.Rule, back_populates="entity", cascade="all, delete"),
+        "rules": relationship(
+            models.Rule, back_populates="entity", cascade="all, delete"
+        ),
         "routes": relationship(
             models.Route,
             secondary=entity_route_association_table,

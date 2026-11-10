@@ -1,6 +1,7 @@
 import pytest
 from route_registry.store.repository import NotFound
 
+
 def test_add_a_user(UOW, make_user):
     # Setup
     user = make_user()
@@ -102,15 +103,16 @@ def test_a_rule_is_unique_for_a_route_and_entity(
     domain = make_domain()
     route = make_route(domain=domain)
     rule = make_rule(entity=user, route=route)
-    rule2 = make_rule(entity=user, route=route)
+
     # Execute
     with UOW() as uow:
         uow.rule_repo.add(rule)
 
     # Verify
     with pytest.raises(Exception):
+        rule2 = make_rule(entity=user, route=route)
         with UOW() as uow:
-            uow.entity_repo.add(rule2)
+            uow.rule_repo.add(rule2)
 
 
 def test_rules_can_be_listed_for_a_specific_route(
@@ -135,7 +137,7 @@ def test_rules_can_be_listed_for_a_specific_route(
         actual_route_rules = uow.rule_repo.list(route.id)
         all_rules = uow.rule_repo.list()
         assert len(actual_route_rules) == len(expected_route_rules)
-        assert all_rules > actual_route_rules
+        assert len(all_rules) > len(actual_route_rules)
         assert all(rule.route_id == route.id for rule in actual_route_rules)
 
 
@@ -159,4 +161,3 @@ def test_user_with_rules_can_be_deleted(
     with UOW() as uow:
         with pytest.raises(NotFound):
             uow.entity_repo.get_user(user.uid)
-

@@ -1,5 +1,5 @@
 import pytest
-
+from route_registry.store.repository import NotFound
 
 def test_add_a_user(UOW, make_user):
     # Setup
@@ -137,3 +137,26 @@ def test_rules_can_be_listed_for_a_specific_route(
         assert len(actual_route_rules) == len(expected_route_rules)
         assert all_rules > actual_route_rules
         assert all(rule.route_id == route.id for rule in actual_route_rules)
+
+
+def test_user_with_rules_can_be_deleted(
+    UOW, make_user, make_route, make_rule, make_domain
+):
+    # Setup
+    domain = make_domain()
+    route = make_route(domain=domain)
+    user = make_user()
+    rule = make_rule(entity=user, route=route)
+
+    with UOW() as uow:
+        uow.rule_repo.add(rule)
+
+    # Execute
+    with UOW() as uow:
+        uow.entity_repo.remove_user(user.uid)
+
+    # Verify
+    with UOW() as uow:
+        with pytest.raises(NotFound):
+            uow.entity_repo.get_user(user.uid)
+

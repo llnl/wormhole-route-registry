@@ -2,7 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-ARG project_version="0.1.4"
+ARG project_version="0.1.5"
 
 COPY pyproject.toml pyproject.toml
 COPY uv.lock uv.lock

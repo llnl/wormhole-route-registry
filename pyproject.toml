@@ -84,7 +84,7 @@ version = {attr = "route_registry.__version__"}
 include = ["route_registry*"]
 
 [tool.setuptools.package-data]
-token_service = ["config/settings.toml"]
+route_registry = ["config/settings.toml"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -128,7 +128,7 @@ rule_table = Table(
     "rule",
     mapper_registry.metadata,
     Column("route_id", ForeignKey("route.id"), primary_key=True),
-    Column("entity_id", ForeignKey("entity.id"), primary_key=True),
+    Column("entity_id", ForeignKey("entity.id", ondelete="CASCADE"), primary_key=True),
     Column("policy", Enum(models.Policy), nullable=False),
 )
 

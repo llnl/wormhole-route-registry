@@ -380,6 +380,9 @@ class SqlRuleRepo(SqlAlchemyRepo):
     def remove_for_route(self, route_id: str):
         self.session.query(models.Rule).where(models.Rule.route_id == route_id).delete()
 
+    def remove_for_entity(self, entity_id: str):
+        self.session.query(models.Rule).where(models.Rule.entity_id == entity_id).delete()
+
     def list(self, route_id: Optional[str] = None) -> List[models.Rule]:
         stmt = select(models.Rule)
         if route_id:

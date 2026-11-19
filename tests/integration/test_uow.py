@@ -164,6 +164,7 @@ def test_user_with_rules_can_be_deleted(
             uow.entity_repo.get_user(user.uid)
         assert not uow.rule_repo.get(route.id, user.id)
 
+
 def test_delete_rule_does_not_delete_user(
     UOW, make_user, make_route, make_rule, make_domain
 ):
@@ -175,7 +176,7 @@ def test_delete_rule_does_not_delete_user(
 
     with UOW() as uow:
         uow.rule_repo.add(rule)
-    
+
     # Execute
     with UOW() as uow:
         uow.rule_repo.remove_for_entity(user.id)

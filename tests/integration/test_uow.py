@@ -162,4 +162,26 @@ def test_user_with_rules_can_be_deleted(
     with UOW() as uow:
         with pytest.raises(NotFound):
             uow.entity_repo.get_user(user.uid)
-        assert uow.rule_repo.get(route.id, user.id) is None
+        assert not uow.rule_repo.get(route.id, user.id)
+
+
+def test_delete_rule_does_not_delete_user(
+    UOW, make_user, make_route, make_rule, make_domain
+):
+    # Setup
+    domain = make_domain()
+    route = make_route(domain=domain)
+    user = make_user()
+    rule = make_rule(entity=user, route=route)
+
+    with UOW() as uow:
+        uow.rule_repo.add(rule)
+
+    # Execute
+    with UOW() as uow:
+        uow.rule_repo.remove_for_entity(user.id)
+
+    # Verify
+    with UOW() as uow:
+        assert uow.entity_repo.get_user(user.uid)
+        assert not uow.rule_repo.get(route.id, user.id)
